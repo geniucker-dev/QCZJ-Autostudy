@@ -51,7 +51,7 @@ class QCZJ_Youth_Learning:
             'Sec-Fetch-User': '?1',
             'Sec-Fetch-Dest': 'document',
         }
-        tempheaders = self.headers
+        tempheaders = self.headers.copy()
         tempheaders.update(headers)
         time_stamp = str(int(time.time()))#获取时间戳
         url = "https://qczj.h5yunban.com/qczj-youth-learning/cgi-bin/login/we-chat/callback?callback=https%3A%2F%2Fqczj.h5yunban.com%2Fqczj-youth-learning%2Findex.php&scope=snsapi_userinfo&appid=wx56b888a1409a2920&openid="+openid+"&nickname="+ nickname +"&headimg=&time="+time_stamp+"&source=common&sign=&t="+time_stamp
