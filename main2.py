@@ -186,6 +186,10 @@ class YouthLearning:
                     print(display_message)
 
                     self.time_sleep()
+                else:
+                    display_message = f"{name}今天是周末，不签到"
+                    push_message += f"{display_message}\n"
+                    print(display_message)
 
             # 读文章
             if i == 2:
@@ -200,10 +204,14 @@ class YouthLearning:
                         push_message += f"{display_message}\n"
                         print(display_message)
                         self.time_sleep(8, 10)
+                else:
+                    display_message = f"{name}今天是周末，不学习"
+                    push_message += f"{display_message}\n"
+                    print(display_message)
 
             # 学视频
             if i == 3:
-                if learn_course and self.random_probability(0.7):
+                if learn_course and self.random_probability(0.5):
                     new_course_id = self._get_current_course()
                     self.time_sleep()
                     if self.join_course(new_course_id, self.nid, name):
@@ -213,6 +221,10 @@ class YouthLearning:
                     push_message += f"{display_message}\n"
                     print(display_message)
                     self.time_sleep()
+                else:
+                    display_message = f"{name}今天心情不好，不学习视频"
+                    push_message += f"{display_message}\n"
+                    print(display_message)
 
         self.send_message(push_message)
 
