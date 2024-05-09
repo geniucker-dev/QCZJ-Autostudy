@@ -4,6 +4,7 @@ from functools import wraps
 from types import MethodType
 import random
 import time
+import datetime
 import requests
 import json
 import os
@@ -67,6 +68,10 @@ class YouthLearning:
     @staticmethod
     def time_sleep():
         time.sleep(random.randint(5, 10))
+
+    @staticmethod
+    def random_probability(probability):
+        return random.random() < probability
 
     @TimeoutRetry
     def _get_access_token(self):
@@ -169,30 +174,34 @@ class YouthLearning:
         for i in sequence:
             # 签到
             if i == 1:
-                if self.sign_in():
-                    display_message = f"{self.name}签到成功"
-                else:
-                    display_message = f"{self.name}已签到或签到失败"
-                push_message += f"{display_message}\n"
-                print(display_message)
+                # 工作日签到
+                if datetime.datetime.weekday(datetime.datetime.now()) in range(0, 5):
+                    if self.sign_in():
+                        display_message = f"{self.name}签到成功"
+                    else:
+                        display_message = f"{self.name}已签到或签到失败"
+                    push_message += f"{display_message}\n"
+                    print(display_message)
 
-                self.time_sleep()
+                    self.time_sleep()
 
             # 读文章
             if i == 2:
-                passages = [f'C004700{random.randint(17, 26)}' for _ in range(4)]
-                for passage_id in passages:
-                    if self.read_passage(passage_id):
-                        display_message = f"{self.name}已学习{passage_id}"
-                    else:
-                        display_message = f"{self.name}学习失败{passage_id}"
-                    push_message += f"{display_message}\n"
-                    print(display_message)
-                    time.sleep(random.randint(8, 10))
+                # 工作日学习
+                if datetime.datetime.weekday(datetime.datetime.now()) in range(0, 5):
+                    passages = [f'C004700{random.randint(17, 26)}' for _ in range(4)]
+                    for passage_id in passages:
+                        if self.read_passage(passage_id):
+                            display_message = f"{self.name}已学习{passage_id}"
+                        else:
+                            display_message = f"{self.name}学习失败{passage_id}"
+                        push_message += f"{display_message}\n"
+                        print(display_message)
+                        time.sleep(random.randint(8, 10))
 
             # 学视频
             if i == 3:
-                if learn_course:
+                if learn_course and self.random_probability(0.7):
                     new_course_id = self._get_current_course()
                     self.time_sleep()
                     if self.join_course(new_course_id, self.nid, self.name):
