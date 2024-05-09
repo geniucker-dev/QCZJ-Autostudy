@@ -6,6 +6,9 @@ import random
 import time
 import requests
 import json
+import os
+
+import tgpush
 
 
 class TimeoutRetry:
@@ -32,11 +35,12 @@ class TimeoutRetry:
 
 
 class YouthLearning:
-    def __init__(self, open_id, nick_name, name, nid):
+    def __init__(self, open_id, nick_name, name, nid, tgbot: tgpush.TGBot = None):
         self.open_id = open_id
         self.nick_name = nick_name
         self.name = name
         self.nid = nid
+        self.tgbot = tgbot
 
         self.headers = {
             'Host': 'qczj.h5yunban.com',
@@ -140,40 +144,91 @@ class YouthLearning:
         res = self.session.post(url, json={}, headers=headers, timeout=3).json()
         return res["status"] == 200 and res['result']
 
+    @TimeoutRetry
+    def send_message(self, message):
+        if self.tgbot:
+            self.tgbot.send_message(message)
+
     def main(self, learn_course=False):
-        passages = [f'C004700{random.randint(17, 26)}' for _ in range(4)]
+        # 随机顺序
+        sequence = [1,2,3]
+        random.shuffle(sequence)
+        order = {1:'签到',2:'读文章',3:'学视频'}
 
-        # 签到
-        if self.sign_in():
-            print(f"{self.name}签到成功")
-        else:
-            print(f"{self.name}已签到或签到失败")
+        # display_message = f"{self.name}开始学习\n"
+        display_message = "{}开始学习\n".format(
+            self.name if len(self.name)!=10 else self.name[:2]+"*****"+self.name[-3:]
+        )
 
-        self.time_sleep()
+        display_message += "学习顺序：{}".format(", ".join([order[i] for i in sequence]))
 
-        # 读文章
-        for passage_id in passages:
-            if self.read_passage(passage_id):
-                print(f"{self.name}已学习{passage_id}")
-            else:
-                print(f"{self.name}学习失败{passage_id}")
-            time.sleep(random.randint(8, 10))
+        push_message = f"{display_message}\n"
 
-        # 学视频
-        if learn_course:
-            new_course_id = self._get_current_course()
-            self.time_sleep()
-            if self.join_course(new_course_id, self.nid, self.name):
-                print(f"{self.name}已完成视频课程")
-            else:
-                print(f"{self.name}视频课程失败")
+        print(display_message)
+
+        for i in sequence:
+            # 签到
+            if i == 1:
+                if self.sign_in():
+                    display_message = f"{self.name}签到成功"
+                else:
+                    display_message = f"{self.name}已签到或签到失败"
+                push_message += f"{display_message}\n"
+                print(display_message)
+
+                self.time_sleep()
+
+            # 读文章
+            if i == 2:
+                passages = [f'C004700{random.randint(17, 26)}' for _ in range(4)]
+                for passage_id in passages:
+                    if self.read_passage(passage_id):
+                        display_message = f"{self.name}已学习{passage_id}"
+                    else:
+                        display_message = f"{self.name}学习失败{passage_id}"
+                    push_message += f"{display_message}\n"
+                    print(display_message)
+                    time.sleep(random.randint(8, 10))
+
+            # 学视频
+            if i == 3:
+                if learn_course:
+                    new_course_id = self._get_current_course()
+                    self.time_sleep()
+                    if self.join_course(new_course_id, self.nid, self.name):
+                        display_message = f"{self.name}已完成视频课程"
+                    else:
+                        display_message = f"{self.name}视频课程失败"
+                    push_message += f"{display_message}\n"
+                    print(display_message)
+                    self.time_sleep()
+
+        self.send_message(push_message)
 
 
 if __name__ == "__main__":
+    from telebot import apihelper
+    # apihelper.proxy = {'https': 'socks5://localhost:7890', 'http': 'socks5://localhost:7890'}
+
+    tgbot = None
+
+    if os.path.exists("tgpush.json"):
+        try:
+            f = open('tgpush.json')
+            data = json.load(f)
+            token = data['token']
+            chat_id = data['chat_id']
+            print("成功读取tg bot信息")
+        except:
+            print("未能成功从tgdata.json读取tg bot信息")
+        finally:
+            f.close()
+        tgbot = tgpush.TGBot(token, chat_id)
+
     # 使用例 见data.json 批量多人完成
     with open("data.json", encoding="utf-8") as f:
         data_json = json.load(f)
     for nid_ in data_json.keys():
         for stu in data_json[nid_]:
-            stu_learn = YouthLearning(**stu, nid=nid_)
-            stu_learn.main()
+            stu_learn = YouthLearning(**stu, nid=nid_, tgbot=tgbot)
+            stu_learn.main(True)

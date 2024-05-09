@@ -66,7 +66,27 @@ python3 main.py
 }
 ```
 
-2、运行main2.py
+2. （可选）创建并编辑`tgpush.json`，即可使用tg bot推送
+
+```json
+{
+    "token": "你的bot token",
+    "chat_id": "对话id"
+}
+```
+
+（可选）设置tg bot代理
+
+在`if __name__ == '__main__':`后解除代理相关的注释
+
+
+```python
+if __name__ == "__main__":
+    from telebot import apihelper
+    apihelper.proxy = {'https': 'http://localhost:7890', 'http': 'http://localhost:7890'}
+```
+
+3、运行main2.py
 
 ```bash
 > python3 main.py
@@ -76,6 +96,6 @@ python3 main.py
 - [ ] 完善日志
 - [x] 重构代码
 - [x] 添加随机任务顺序
-- [ ] 增加推送功能
+- [x] 增加推送功能（仅`main2.py`）
 - [x] 针对网络问题优化
 
