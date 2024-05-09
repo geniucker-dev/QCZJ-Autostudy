@@ -66,8 +66,11 @@ class YouthLearning:
         self.access_token = self._get_access_token()
 
     @staticmethod
-    def time_sleep():
-        time.sleep(random.randint(5, 10))
+    def time_sleep(a: float = 5, b: float = 10):
+        """
+        随机时间 [a, b] 秒
+        """
+        time.sleep(random.uniform(a, b))
 
     @staticmethod
     def random_probability(probability):
@@ -197,7 +200,7 @@ class YouthLearning:
                             display_message = f"{self.name}学习失败{passage_id}"
                         push_message += f"{display_message}\n"
                         print(display_message)
-                        time.sleep(random.randint(8, 10))
+                        self.time_sleep(8, 10)
 
             # 学视频
             if i == 3:
@@ -216,7 +219,7 @@ class YouthLearning:
 
 
 if __name__ == "__main__":
-    from telebot import apihelper
+    # from telebot import apihelper
     # apihelper.proxy = {'https': 'socks5://localhost:7890', 'http': 'socks5://localhost:7890'}
 
     tgbot = None
