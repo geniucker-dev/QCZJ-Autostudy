@@ -163,10 +163,9 @@ class YouthLearning:
         random.shuffle(sequence)
         order = {1:'签到',2:'读文章',3:'学视频'}
 
-        # display_message = f"{self.name}开始学习\n"
-        display_message = "{}开始学习\n".format(
-            self.name if len(self.name)!=10 else self.name[:2]+"*****"+self.name[-3:]
-        )
+        name = self.name if len(self.name)!=10 else self.name[:2]+"*****"+self.name[-3:]
+
+        display_message = f"{name}开始学习\n"
 
         display_message += "学习顺序：{}".format(", ".join([order[i] for i in sequence]))
 
@@ -180,9 +179,9 @@ class YouthLearning:
                 # 工作日签到
                 if datetime.datetime.weekday(datetime.datetime.now()) in range(0, 5):
                     if self.sign_in():
-                        display_message = f"{self.name}签到成功"
+                        display_message = f"{name}签到成功"
                     else:
-                        display_message = f"{self.name}已签到或签到失败"
+                        display_message = f"{name}已签到或签到失败"
                     push_message += f"{display_message}\n"
                     print(display_message)
 
@@ -195,9 +194,9 @@ class YouthLearning:
                     passages = [f'C004700{random.randint(17, 26)}' for _ in range(4)]
                     for passage_id in passages:
                         if self.read_passage(passage_id):
-                            display_message = f"{self.name}已学习{passage_id}"
+                            display_message = f"{name}已学习{passage_id}"
                         else:
-                            display_message = f"{self.name}学习失败{passage_id}"
+                            display_message = f"{name}学习失败{passage_id}"
                         push_message += f"{display_message}\n"
                         print(display_message)
                         self.time_sleep(8, 10)
@@ -207,10 +206,10 @@ class YouthLearning:
                 if learn_course and self.random_probability(0.7):
                     new_course_id = self._get_current_course()
                     self.time_sleep()
-                    if self.join_course(new_course_id, self.nid, self.name):
-                        display_message = f"{self.name}已完成视频课程"
+                    if self.join_course(new_course_id, self.nid, name):
+                        display_message = f"{name}已完成视频课程"
                     else:
-                        display_message = f"{self.name}视频课程失败"
+                        display_message = f"{name}视频课程失败"
                     push_message += f"{display_message}\n"
                     print(display_message)
                     self.time_sleep()
