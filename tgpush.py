@@ -14,7 +14,7 @@ class TGBot:
 
 
 if __name__ == "__main__":
-    apihelper.proxy = {'https': 'socks5://localhost:7890', 'http': 'socks5://localhost:7890'}
+    apihelper.proxy = {'https': 'http://localhost:7890', 'http': 'http://localhost:7890'}
 
     # get token from push.json
     with open('tgpush.json', 'r') as f:

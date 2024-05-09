@@ -220,7 +220,7 @@ class YouthLearning:
 
 if __name__ == "__main__":
     # from telebot import apihelper
-    # apihelper.proxy = {'https': 'socks5://localhost:7890', 'http': 'socks5://localhost:7890'}
+    # apihelper.proxy = {'https': 'http://localhost:7890', 'http': 'http://localhost:7890'}
 
     tgbot = None
 
