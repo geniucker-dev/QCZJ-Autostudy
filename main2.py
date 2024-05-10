@@ -96,6 +96,21 @@ class YouthLearning:
             return res_json["result"]["id"]
         else:
             return ""
+    
+    @TimeoutRetry
+    def _get_latest_course_record(self):
+        headers = {
+            'Referer': 'https://qczj.h5yunban.com/qczj-youth-learning/mine.php',
+        }
+        headers.update(self.headers)
+        url = f"https://qczj.h5yunban.com/qczj-youth-learning/cgi-bin/user-api/course/records/v2?" \
+              f"accessToken={self.access_token}" \
+              f"&pageSize=5&pageNum=1&desc=createTime"
+        res_json = self.session.get(url, headers=headers, timeout=3).json()
+        if res_json["status"] == 200:
+            return res_json["result"]["list"][0]["id"]
+        else:
+            return ""
 
     @TimeoutRetry
     def join_course(self, course_id, nid, name):
@@ -162,11 +177,15 @@ class YouthLearning:
         # 学视频
         if learn_course:
             new_course_id = self._get_current_course()
-            self.time_sleep()
-            if self.join_course(new_course_id, self.nid, self.name):
-                print(f"{self.name}已完成视频课程")
+            latest_course_id = self._get_latest_course_record()
+            if new_course_id == latest_course_id:
+                print(f"{self.name}此前已完成视频课程")
             else:
-                print(f"{self.name}视频课程失败")
+                self.time_sleep()
+                if self.join_course(new_course_id, self.nid, self.name):
+                    print(f"{self.name}已完成视频课程")
+                else:
+                    print(f"{self.name}视频课程失败")
 
 
 if __name__ == "__main__":

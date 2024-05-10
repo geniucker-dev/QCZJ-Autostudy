@@ -76,6 +76,22 @@ class QCZJ_Youth_Learning:
             print("获取最新课程失败！退出程序")
             print(res.text)
             exit(0)
+    
+    def getLatestCourseRecord(self,access_token):
+        headers = {
+            'Referer': 'https://qczj.h5yunban.com/qczj-youth-learning/mine.php',
+        }
+        headers.update(self.headers)
+        url = f"https://qczj.h5yunban.com/qczj-youth-learning/cgi-bin/user-api/course/records/v2?accessToken="+access_token+"&pageSize=5&pageNum=1&desc=createTime"
+        res = self.session.get(url, headers=headers)
+        res_json = json.loads(res.text)
+        if res_json["status"] == 200:
+            print("获取到最新课程记录:", res_json["result"]["list"][0]["id"])
+            return res_json["result"]["list"][0]["id"]
+        else:
+            print("获取最新课程记录失败！退出程序")
+            print(res.text)
+            exit(0)
 
     #签到 并获取签到记录
     def getJoin(self,access_token,current_course,nid,cardNo):
@@ -189,7 +205,6 @@ class QCZJ_Youth_Learning:
         access_token = self.getAccessToken(self.openid,self.nickname)
 
         time.sleep(self.sleep_time)
-        current_course = self.getCurrentCourse(access_token)
 
         #添加随机执行
         sequence = [1,2,3]
@@ -205,8 +220,13 @@ class QCZJ_Youth_Learning:
                 time.sleep(self.sleep_time)
                 print("今天是星期",datetime.datetime.now().weekday()+1)
                 if datetime.datetime.now().weekday() == 0:
-                    time.sleep(self.sleep_time)
-                    self.getJoin(access_token,current_course,self.nid,self.cardNo)
+                    current_course = self.getCurrentCourse(access_token)
+                    latest_course = self.getLatestCourseRecord(access_token)
+                    if current_course == latest_course:
+                        print("这个视频已经看过了，不看了")
+                    else:
+                        time.sleep(self.sleep_time)
+                        self.getJoin(access_token,current_course,self.nid,self.cardNo)
                 else:
                     print("今天不是周一，不看视频")
             if i == 2:    #签到
