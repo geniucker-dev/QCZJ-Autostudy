@@ -108,6 +108,21 @@ class YouthLearning:
             return res_json["result"]["id"]
         else:
             return ""
+    
+    @TimeoutRetry
+    def _get_latest_course_record(self):
+        headers = {
+            'Referer': 'https://qczj.h5yunban.com/qczj-youth-learning/mine.php',
+        }
+        headers.update(self.headers)
+        url = f"https://qczj.h5yunban.com/qczj-youth-learning/cgi-bin/user-api/course/records/v2?" \
+              f"accessToken={self.access_token}" \
+              f"&pageSize=5&pageNum=1&desc=createTime"
+        res_json = self.session.get(url, headers=headers, timeout=3).json()
+        if res_json["status"] == 200:
+            return res_json["result"]["list"][0]["id"]
+        else:
+            return ""
 
     @TimeoutRetry
     def join_course(self, course_id, nid, name):
@@ -211,8 +226,15 @@ class YouthLearning:
 
             # 学视频
             if i == 3:
-                if learn_course and self.random_probability(0.5):
+                if learn_course and self.random_probability(0.6):
                     new_course_id = self._get_current_course()
+                    latest_course_id = self._get_latest_course_record()
+                    if new_course_id == latest_course_id:
+                        display_message = f"{name}此前已完成最新视频课程"
+                        push_message += f"{display_message}\n"
+                        print(display_message)
+                        continue
+                        
                     self.time_sleep()
                     if self.join_course(new_course_id, self.nid, name):
                         display_message = f"{name}已完成视频课程"
@@ -232,6 +254,8 @@ class YouthLearning:
 if __name__ == "__main__":
     # from telebot import apihelper
     # apihelper.proxy = {'https': 'http://localhost:7890', 'http': 'http://localhost:7890'}
+
+    random.seed(time.time())
 
     tgbot = None
 
