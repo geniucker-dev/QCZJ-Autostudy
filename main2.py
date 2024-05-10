@@ -74,7 +74,7 @@ class YouthLearning:
 
     @staticmethod
     def random_probability(probability):
-        return random.random() < probability
+        return random.random() <= probability
 
     @TimeoutRetry
     def _get_access_token(self):
@@ -226,7 +226,7 @@ class YouthLearning:
 
             # 学视频
             if i == 3:
-                if learn_course and self.random_probability(0.6):
+                if learn_course and self.random_probability(1):
                     new_course_id = self._get_current_course()
                     latest_course_id = self._get_latest_course_record()
                     if new_course_id == latest_course_id:
